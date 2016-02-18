@@ -11549,6 +11549,49 @@ Elm.Html.Attributes.make = function (_elm) {
                                         ,property: property
                                         ,attribute: attribute};
 };
+Elm.StartApp = Elm.StartApp || {};
+Elm.StartApp.Simple = Elm.StartApp.Simple || {};
+Elm.StartApp.Simple.make = function (_elm) {
+   "use strict";
+   _elm.StartApp = _elm.StartApp || {};
+   _elm.StartApp.Simple = _elm.StartApp.Simple || {};
+   if (_elm.StartApp.Simple.values)
+   return _elm.StartApp.Simple.values;
+   var _U = Elm.Native.Utils.make(_elm),
+   $Basics = Elm.Basics.make(_elm),
+   $Debug = Elm.Debug.make(_elm),
+   $Html = Elm.Html.make(_elm),
+   $List = Elm.List.make(_elm),
+   $Maybe = Elm.Maybe.make(_elm),
+   $Result = Elm.Result.make(_elm),
+   $Signal = Elm.Signal.make(_elm);
+   var _op = {};
+   var start = function (config) {
+      var update = F2(function (maybeAction,model) {
+         var _p0 = maybeAction;
+         if (_p0.ctor === "Just") {
+               return A2(config.update,_p0._0,model);
+            } else {
+               return _U.crashCase("StartApp.Simple",
+               {start: {line: 91,column: 7},end: {line: 96,column: 52}},
+               _p0)("This should never happen.");
+            }
+      });
+      var actions = $Signal.mailbox($Maybe.Nothing);
+      var address = A2($Signal.forwardTo,actions.address,$Maybe.Just);
+      var model = A3($Signal.foldp,
+      update,
+      config.model,
+      actions.signal);
+      return A2($Signal.map,config.view(address),model);
+   };
+   var Config = F3(function (a,b,c) {
+      return {model: a,view: b,update: c};
+   });
+   return _elm.StartApp.Simple.values = {_op: _op
+                                        ,Config: Config
+                                        ,start: start};
+};
 Elm.Multiplication = Elm.Multiplication || {};
 Elm.Multiplication.make = function (_elm) {
    "use strict";
@@ -11567,6 +11610,24 @@ Elm.Multiplication.make = function (_elm) {
    $Result = Elm.Result.make(_elm),
    $Signal = Elm.Signal.make(_elm);
    var _op = {};
+   var showParams = function (model) {
+      return A2($Html.p,
+      _U.list([]),
+      _U.list([$Html.text("seed = ")
+              ,$Html.text($Basics.toString(model.intSeed))
+              ,$Html.text(", a = ")
+              ,$Html.text($Basics.toString(model.minA))
+              ,$Html.text(" to ")
+              ,$Html.text($Basics.toString(model.maxA))
+              ,$Html.text(", b = ")
+              ,$Html.text($Basics.toString(model.minB))
+              ,$Html.text(" to ")
+              ,$Html.text($Basics.toString(model.maxB))
+              ,$Html.text(", table of ")
+              ,$Html.text($Basics.toString(model.cols))
+              ,$Html.text("x")
+              ,$Html.text($Basics.toString(model.rows))]));
+   };
    var split = F2(function (n,ls) {
       var rest = A2($List.drop,n,ls);
       return $List.isEmpty(rest) ? _U.list([ls]) : A2($List._op["::"],
@@ -11586,40 +11647,18 @@ Elm.Multiplication.make = function (_elm) {
               ,$Html.text($Basics.toString(_p1._1))
               ,$Html.text(" = ")]));
    };
-   var intSeed = 1234;
-   var maxB = 10;
-   var maxA = 10;
-   var minB = 2;
-   var minA = 2;
-   var problems = function (quantity) {
-      var genB = A2($Random.$int,minB,maxB);
-      var genA = A2($Random.$int,minA,maxA);
+   var problems = function (model) {
+      var quantity = model.rows * model.cols;
+      var genB = A2($Random.$int,model.minB,model.maxB);
+      var genA = A2($Random.$int,model.minA,model.maxA);
       var genPair = A2($Random.pair,genA,genB);
       return A2($Random.list,quantity,genPair);
    };
-   var rows = 25;
-   var cols = 2;
-   var showParams = A2($Html.p,
-   _U.list([]),
-   _U.list([$Html.text("seed = ")
-           ,$Html.text($Basics.toString(intSeed))
-           ,$Html.text(", a = ")
-           ,$Html.text($Basics.toString(minA))
-           ,$Html.text(" to ")
-           ,$Html.text($Basics.toString(maxA))
-           ,$Html.text(", b = ")
-           ,$Html.text($Basics.toString(minB))
-           ,$Html.text(" to ")
-           ,$Html.text($Basics.toString(maxB))
-           ,$Html.text(", table of ")
-           ,$Html.text($Basics.toString(cols))
-           ,$Html.text("x")
-           ,$Html.text($Basics.toString(rows))]));
-   var main = function () {
-      var seed = $Random.initialSeed(intSeed);
-      var _p2 = A2($Random.generate,problems(cols * rows),seed);
+   var view = F2(function (address,model) {
+      var seed = $Random.initialSeed(model.intSeed);
+      var _p2 = A2($Random.generate,problems(model),seed);
       var prob = _p2._0;
-      var prob$ = A2(split,cols,prob);
+      var prob$ = A2(split,model.cols,prob);
       return A2($Html.div,
       _U.list([$Html$Attributes.id("content")]),
       _U.list([A2($Html.table,
@@ -11635,19 +11674,80 @@ Elm.Multiplication.make = function (_elm) {
                  row));
               },
               prob$))
-              ,showParams]));
-   }();
+              ,showParams(model)]));
+   });
+   var update = F2(function (action,model) {
+      var _p3 = action;
+      switch (_p3.ctor)
+      {case "SetSeed": return _U.update(model,{intSeed: _p3._0});
+         case "SetMinA": return _U.update(model,{minA: _p3._0});
+         case "SetMaxA": return _U.update(model,{maxA: _p3._0});
+         case "SetMinB": return _U.update(model,{minB: _p3._0});
+         default: return _U.update(model,{maxB: _p3._0});}
+   });
+   var SetMaxB = function (a) {
+      return {ctor: "SetMaxB",_0: a};
+   };
+   var SetMaxA = function (a) {
+      return {ctor: "SetMaxA",_0: a};
+   };
+   var SetMinB = function (a) {
+      return {ctor: "SetMinB",_0: a};
+   };
+   var SetMinA = function (a) {
+      return {ctor: "SetMinA",_0: a};
+   };
+   var SetSeed = function (a) {
+      return {ctor: "SetSeed",_0: a};
+   };
+   var initialModel = {intSeed: 1234
+                      ,minA: 2
+                      ,maxA: 10
+                      ,minB: 2
+                      ,maxB: 10
+                      ,rows: 25
+                      ,cols: 2};
+   var Model = F7(function (a,b,c,d,e,f,g) {
+      return {intSeed: a
+             ,minA: b
+             ,maxA: c
+             ,minB: d
+             ,maxB: e
+             ,rows: f
+             ,cols: g};
+   });
    return _elm.Multiplication.values = {_op: _op
-                                       ,cols: cols
-                                       ,rows: rows
-                                       ,minA: minA
-                                       ,minB: minB
-                                       ,maxA: maxA
-                                       ,maxB: maxB
-                                       ,intSeed: intSeed
+                                       ,Model: Model
+                                       ,initialModel: initialModel
+                                       ,SetSeed: SetSeed
+                                       ,SetMinA: SetMinA
+                                       ,SetMinB: SetMinB
+                                       ,SetMaxA: SetMaxA
+                                       ,SetMaxB: SetMaxB
+                                       ,update: update
+                                       ,view: view
                                        ,problems: problems
                                        ,showProblem: showProblem
                                        ,split: split
-                                       ,showParams: showParams
-                                       ,main: main};
+                                       ,showParams: showParams};
+};
+Elm.Main = Elm.Main || {};
+Elm.Main.make = function (_elm) {
+   "use strict";
+   _elm.Main = _elm.Main || {};
+   if (_elm.Main.values) return _elm.Main.values;
+   var _U = Elm.Native.Utils.make(_elm),
+   $Basics = Elm.Basics.make(_elm),
+   $Debug = Elm.Debug.make(_elm),
+   $List = Elm.List.make(_elm),
+   $Maybe = Elm.Maybe.make(_elm),
+   $Multiplication = Elm.Multiplication.make(_elm),
+   $Result = Elm.Result.make(_elm),
+   $Signal = Elm.Signal.make(_elm),
+   $StartApp$Simple = Elm.StartApp.Simple.make(_elm);
+   var _op = {};
+   var main = $StartApp$Simple.start({model: $Multiplication.initialModel
+                                     ,update: $Multiplication.update
+                                     ,view: $Multiplication.view});
+   return _elm.Main.values = {_op: _op,main: main};
 };

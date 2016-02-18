@@ -23,51 +23,60 @@ import Html exposing (..)
 import Html.Attributes exposing (id, class, property)
 import Random
 import Json.Encode as Json
-import Signal exposing (..)
 
 -- types
 {-| @docs problem type -}
 type alias Problem = (Int, Int)
 
--- settings
-{-| @docs number of columns in examples table -}
-cols : Int
-cols = 2
+type alias Model = {
+    intSeed : Int
+  , minA : Int
+  , maxA : Int
+  , minB : Int
+  , maxB : Int
+  , rows : Int
+  , cols : Int
+  }
 
-{-| @docs number of rows in examples table -}
-rows : Int
-rows = 25
+initialModel : Model
+initialModel = { intSeed = 1234
+               , minA = 2
+               , maxA = 10
+               , minB = 2
+               , maxB = 10
+               , rows = 25
+               , cols = 2 }
 
-{-| @docs minimum A -}
-minA : Int
-minA = 2
+type Action = SetSeed Int | SetMinA Int | SetMinB Int | SetMaxA Int | SetMaxB Int
 
-{-| @docs mimunum B -}
-minB : Int
-minB = 2
+update : Action -> Model -> Model
+update action model =
+  case action of
+    SetSeed s -> { model | intSeed = s }
+    SetMinA a -> { model | minA = a }
+    SetMaxA a -> { model | maxA = a }
+    SetMinB b -> { model | minB = b }
+    SetMaxB b -> { model | maxB = b }
 
-{-| @docs maximum A -}
-maxA : Int
-maxA = 10
-
-{-| @docs maximum B -}
-maxB : Int
-maxB = 10
-
-{-| @docs RNG seed -}
-intSeed : Int
-intSeed = 1234
-
--- port initialLocation : String -- incoming
--- port location : Signal String -- outgoing
+view : Signal.Address Action -> Model -> Html
+view address model =
+  let seed = Random.initialSeed model.intSeed
+      (prob, _) = Random.generate (problems model) seed
+      prob' = split model.cols prob
+  in div [id "content"] <|
+         [ table [] <|
+                 List.map (\row -> tr [] <|
+                           List.map (\p -> td [] [showProblem p]) row) prob'
+         , showParams model ]
 
 -- functions
 {-| @docs problems generator -}
-problems : Int -> Random.Generator (List Problem)
-problems quantity =
-  let genA = Random.int minA maxA
-      genB = Random.int minB maxB
+problems : Model -> Random.Generator (List Problem)
+problems model =
+  let genA = Random.int model.minA model.maxA
+      genB = Random.int model.minB model.maxB
       genPair = Random.pair genA genB
+      quantity = model.rows * model.cols
   in Random.list quantity genPair
 
 {-| @docs render problem -}
@@ -89,21 +98,9 @@ split n ls =
      else List.take n ls :: split n rest
 
 {-| @docs render params -}
-showParams : Html
-showParams = p []
-  [ text "seed = ", text <| toString intSeed
-  , text ", a = ", text <| toString minA, text " to ", text <| toString maxA
-  , text ", b = ", text <| toString minB, text " to ", text <| toString maxB
-  , text ", table of ", text <| toString cols, text "x", text <| toString rows ]
-
-{-| @docs main render function -}
-main : Html
-main =
-  let seed = Random.initialSeed intSeed
-      (prob, _) = Random.generate (problems <| cols * rows) seed
-      prob' = split cols prob
-  in div [id "content"] <|
-       [ table [] <|
-               List.map (\row -> tr [] <|
-                           List.map (\p -> td [] [showProblem p]) row) prob'
-       , showParams ]
+showParams : Model -> Html
+showParams model = p []
+  [ text "seed = ", text <| toString model.intSeed
+  , text ", a = ", text <| toString model.minA, text " to ", text <| toString model.maxA
+  , text ", b = ", text <| toString model.minB, text " to ", text <| toString model.maxB
+  , text ", table of ", text <| toString model.cols, text "x", text <| toString model.rows ]
