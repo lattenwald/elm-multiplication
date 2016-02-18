@@ -1,4 +1,4 @@
-module Main where
+module Multiplication where
 
 import Html exposing (..)
 import Html.Attributes exposing (id, class, property)

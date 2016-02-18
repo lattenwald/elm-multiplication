@@ -11549,11 +11549,12 @@ Elm.Html.Attributes.make = function (_elm) {
                                         ,property: property
                                         ,attribute: attribute};
 };
-Elm.Main = Elm.Main || {};
-Elm.Main.make = function (_elm) {
+Elm.Multiplication = Elm.Multiplication || {};
+Elm.Multiplication.make = function (_elm) {
    "use strict";
-   _elm.Main = _elm.Main || {};
-   if (_elm.Main.values) return _elm.Main.values;
+   _elm.Multiplication = _elm.Multiplication || {};
+   if (_elm.Multiplication.values)
+   return _elm.Multiplication.values;
    var _U = Elm.Native.Utils.make(_elm),
    $Basics = Elm.Basics.make(_elm),
    $Debug = Elm.Debug.make(_elm),
@@ -11636,17 +11637,17 @@ Elm.Main.make = function (_elm) {
               prob$))
               ,showParams]));
    }();
-   return _elm.Main.values = {_op: _op
-                             ,cols: cols
-                             ,rows: rows
-                             ,minA: minA
-                             ,minB: minB
-                             ,maxA: maxA
-                             ,maxB: maxB
-                             ,intSeed: intSeed
-                             ,problems: problems
-                             ,showProblem: showProblem
-                             ,split: split
-                             ,showParams: showParams
-                             ,main: main};
+   return _elm.Multiplication.values = {_op: _op
+                                       ,cols: cols
+                                       ,rows: rows
+                                       ,minA: minA
+                                       ,minB: minB
+                                       ,maxA: maxA
+                                       ,maxB: maxB
+                                       ,intSeed: intSeed
+                                       ,problems: problems
+                                       ,showProblem: showProblem
+                                       ,split: split
+                                       ,showParams: showParams
+                                       ,main: main};
 };
