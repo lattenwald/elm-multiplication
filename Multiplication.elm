@@ -1,31 +1,11 @@
 module Multiplication where
 
-{-| Multiplication
-
-# Types
-@docs Problem
-
-# Table format
-@docs cols, rows
-
-# Example bounds
-@docs minA, minB, maxA, maxB
-
-# RNG seed
-@docs intSeed
-
-# functions
-@docs problems, showParams, showProblem, split, main
-
--}
-
 import Html exposing (..)
 import Html.Attributes exposing (id, class, property)
 import Random
 import Json.Encode as Json
 
 -- types
-{-| @docs problem type -}
 type alias Problem = (Int, Int)
 
 type alias Model = {
@@ -70,7 +50,6 @@ view address model =
          , showParams model ]
 
 -- functions
-{-| @docs problems generator -}
 problems : Model -> Random.Generator (List Problem)
 problems model =
   let genA = Random.int model.minA model.maxA
@@ -79,7 +58,6 @@ problems model =
       quantity = model.rows * model.cols
   in Random.list quantity genPair
 
-{-| @docs render problem -}
 showProblem : Problem -> Html
 showProblem (a, b) =
   div [class "problem"]
@@ -88,7 +66,6 @@ showProblem (a, b) =
       , text (toString b)
       , text " = "]
 
-{-| @docs split list -}
 split : Int -> List a -> List (List a)
 split n ls =
   let
@@ -97,7 +74,6 @@ split n ls =
      then [ls]
      else List.take n ls :: split n rest
 
-{-| @docs render params -}
 showParams : Model -> Html
 showParams model = p []
   [ text "seed = ", text <| toString model.intSeed
