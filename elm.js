@@ -11549,6 +11549,94 @@ Elm.Html.Attributes.make = function (_elm) {
                                         ,property: property
                                         ,attribute: attribute};
 };
+Elm.Html = Elm.Html || {};
+Elm.Html.Events = Elm.Html.Events || {};
+Elm.Html.Events.make = function (_elm) {
+   "use strict";
+   _elm.Html = _elm.Html || {};
+   _elm.Html.Events = _elm.Html.Events || {};
+   if (_elm.Html.Events.values) return _elm.Html.Events.values;
+   var _U = Elm.Native.Utils.make(_elm),
+   $Basics = Elm.Basics.make(_elm),
+   $Debug = Elm.Debug.make(_elm),
+   $Html = Elm.Html.make(_elm),
+   $Json$Decode = Elm.Json.Decode.make(_elm),
+   $List = Elm.List.make(_elm),
+   $Maybe = Elm.Maybe.make(_elm),
+   $Result = Elm.Result.make(_elm),
+   $Signal = Elm.Signal.make(_elm),
+   $VirtualDom = Elm.VirtualDom.make(_elm);
+   var _op = {};
+   var keyCode = A2($Json$Decode._op[":="],
+   "keyCode",
+   $Json$Decode.$int);
+   var targetChecked = A2($Json$Decode.at,
+   _U.list(["target","checked"]),
+   $Json$Decode.bool);
+   var targetValue = A2($Json$Decode.at,
+   _U.list(["target","value"]),
+   $Json$Decode.string);
+   var defaultOptions = $VirtualDom.defaultOptions;
+   var Options = F2(function (a,b) {
+      return {stopPropagation: a,preventDefault: b};
+   });
+   var onWithOptions = $VirtualDom.onWithOptions;
+   var on = $VirtualDom.on;
+   var messageOn = F3(function (name,addr,msg) {
+      return A3(on,
+      name,
+      $Json$Decode.value,
+      function (_p0) {
+         return A2($Signal.message,addr,msg);
+      });
+   });
+   var onClick = messageOn("click");
+   var onDoubleClick = messageOn("dblclick");
+   var onMouseMove = messageOn("mousemove");
+   var onMouseDown = messageOn("mousedown");
+   var onMouseUp = messageOn("mouseup");
+   var onMouseEnter = messageOn("mouseenter");
+   var onMouseLeave = messageOn("mouseleave");
+   var onMouseOver = messageOn("mouseover");
+   var onMouseOut = messageOn("mouseout");
+   var onBlur = messageOn("blur");
+   var onFocus = messageOn("focus");
+   var onSubmit = messageOn("submit");
+   var onKey = F3(function (name,addr,handler) {
+      return A3(on,
+      name,
+      keyCode,
+      function (code) {
+         return A2($Signal.message,addr,handler(code));
+      });
+   });
+   var onKeyUp = onKey("keyup");
+   var onKeyDown = onKey("keydown");
+   var onKeyPress = onKey("keypress");
+   return _elm.Html.Events.values = {_op: _op
+                                    ,onBlur: onBlur
+                                    ,onFocus: onFocus
+                                    ,onSubmit: onSubmit
+                                    ,onKeyUp: onKeyUp
+                                    ,onKeyDown: onKeyDown
+                                    ,onKeyPress: onKeyPress
+                                    ,onClick: onClick
+                                    ,onDoubleClick: onDoubleClick
+                                    ,onMouseMove: onMouseMove
+                                    ,onMouseDown: onMouseDown
+                                    ,onMouseUp: onMouseUp
+                                    ,onMouseEnter: onMouseEnter
+                                    ,onMouseLeave: onMouseLeave
+                                    ,onMouseOver: onMouseOver
+                                    ,onMouseOut: onMouseOut
+                                    ,on: on
+                                    ,onWithOptions: onWithOptions
+                                    ,defaultOptions: defaultOptions
+                                    ,targetValue: targetValue
+                                    ,targetChecked: targetChecked
+                                    ,keyCode: keyCode
+                                    ,Options: Options};
+};
 Elm.StartApp = Elm.StartApp || {};
 Elm.StartApp.Simple = Elm.StartApp.Simple || {};
 Elm.StartApp.Simple.make = function (_elm) {
@@ -11603,31 +11691,15 @@ Elm.Multiplication.make = function (_elm) {
    $Debug = Elm.Debug.make(_elm),
    $Html = Elm.Html.make(_elm),
    $Html$Attributes = Elm.Html.Attributes.make(_elm),
+   $Html$Events = Elm.Html.Events.make(_elm),
    $Json$Encode = Elm.Json.Encode.make(_elm),
    $List = Elm.List.make(_elm),
    $Maybe = Elm.Maybe.make(_elm),
    $Random = Elm.Random.make(_elm),
    $Result = Elm.Result.make(_elm),
-   $Signal = Elm.Signal.make(_elm);
+   $Signal = Elm.Signal.make(_elm),
+   $String = Elm.String.make(_elm);
    var _op = {};
-   var showParams = function (model) {
-      return A2($Html.p,
-      _U.list([]),
-      _U.list([$Html.text("seed = ")
-              ,$Html.text($Basics.toString(model.intSeed))
-              ,$Html.text(", a = ")
-              ,$Html.text($Basics.toString(model.minA))
-              ,$Html.text(" to ")
-              ,$Html.text($Basics.toString(model.maxA))
-              ,$Html.text(", b = ")
-              ,$Html.text($Basics.toString(model.minB))
-              ,$Html.text(" to ")
-              ,$Html.text($Basics.toString(model.maxB))
-              ,$Html.text(", table of ")
-              ,$Html.text($Basics.toString(model.cols))
-              ,$Html.text("x")
-              ,$Html.text($Basics.toString(model.rows))]));
-   };
    var split = F2(function (n,ls) {
       var rest = A2($List.drop,n,ls);
       return $List.isEmpty(rest) ? _U.list([ls]) : A2($List._op["::"],
@@ -11654,10 +11726,79 @@ Elm.Multiplication.make = function (_elm) {
       var genPair = A2($Random.pair,genA,genB);
       return A2($Random.list,quantity,genPair);
    };
+   var update = F2(function (action,model) {
+      var _p2 = action;
+      switch (_p2.ctor)
+      {case "SetSeed": return _U.update(model,{intSeed: _p2._0});
+         case "SetMinA": return _U.update(model,{minA: _p2._0});
+         case "SetMaxA": return _U.update(model,{maxA: _p2._0});
+         case "SetMinB": return _U.update(model,{minB: _p2._0});
+         case "SetMaxB": return _U.update(model,{maxB: _p2._0});
+         case "SetRows": return _U.update(model,{rows: _p2._0});
+         default: return _U.update(model,{cols: _p2._0});}
+   });
+   var SetCols = function (a) {
+      return {ctor: "SetCols",_0: a};
+   };
+   var SetRows = function (a) {
+      return {ctor: "SetRows",_0: a};
+   };
+   var SetMaxB = function (a) {
+      return {ctor: "SetMaxB",_0: a};
+   };
+   var SetMaxA = function (a) {
+      return {ctor: "SetMaxA",_0: a};
+   };
+   var SetMinB = function (a) {
+      return {ctor: "SetMinB",_0: a};
+   };
+   var SetMinA = function (a) {
+      return {ctor: "SetMinA",_0: a};
+   };
+   var SetSeed = function (a) {
+      return {ctor: "SetSeed",_0: a};
+   };
+   var showParams = F2(function (address,model) {
+      var makeMessage = F3(function (f,def,str) {
+         return function (_p3) {
+            return A2($Signal.message,
+            address,
+            f(A2($Maybe.withDefault,
+            def,
+            $Result.toMaybe($String.toInt(_p3)))));
+         };
+      });
+      var inp = F2(function (f,def) {
+         return A2($Html.input,
+         _U.list([$Html$Attributes.value($Basics.toString(def))
+                 ,A3($Html$Events.on,
+                 "input",
+                 $Html$Events.targetValue,
+                 A3(makeMessage,f,def,address))]),
+         _U.list([]));
+      });
+      return A2($Html.p,
+      _U.list([]),
+      _U.list([$Html.text("seed = ")
+              ,A2(inp,SetSeed,model.intSeed)
+              ,A2($Html.br,_U.list([]),_U.list([]))
+              ,$Html.text("a = ")
+              ,A2(inp,SetMinA,model.minA)
+              ,$Html.text(" to ")
+              ,A2(inp,SetMaxA,model.maxA)
+              ,$Html.text(", b = ")
+              ,A2(inp,SetMinB,model.minB)
+              ,$Html.text(" to ")
+              ,A2(inp,SetMaxB,model.maxB)
+              ,$Html.text(", table of ")
+              ,A2(inp,SetCols,model.cols)
+              ,$Html.text("x")
+              ,A2(inp,SetRows,model.rows)]));
+   });
    var view = F2(function (address,model) {
       var seed = $Random.initialSeed(model.intSeed);
-      var _p2 = A2($Random.generate,problems(model),seed);
-      var prob = _p2._0;
+      var _p4 = A2($Random.generate,problems(model),seed);
+      var prob = _p4._0;
       var prob$ = A2(split,model.cols,prob);
       return A2($Html.div,
       _U.list([$Html$Attributes.id("content")]),
@@ -11674,32 +11815,8 @@ Elm.Multiplication.make = function (_elm) {
                  row));
               },
               prob$))
-              ,showParams(model)]));
+              ,A2(showParams,address,model)]));
    });
-   var update = F2(function (action,model) {
-      var _p3 = action;
-      switch (_p3.ctor)
-      {case "SetSeed": return _U.update(model,{intSeed: _p3._0});
-         case "SetMinA": return _U.update(model,{minA: _p3._0});
-         case "SetMaxA": return _U.update(model,{maxA: _p3._0});
-         case "SetMinB": return _U.update(model,{minB: _p3._0});
-         default: return _U.update(model,{maxB: _p3._0});}
-   });
-   var SetMaxB = function (a) {
-      return {ctor: "SetMaxB",_0: a};
-   };
-   var SetMaxA = function (a) {
-      return {ctor: "SetMaxA",_0: a};
-   };
-   var SetMinB = function (a) {
-      return {ctor: "SetMinB",_0: a};
-   };
-   var SetMinA = function (a) {
-      return {ctor: "SetMinA",_0: a};
-   };
-   var SetSeed = function (a) {
-      return {ctor: "SetSeed",_0: a};
-   };
    var initialModel = {intSeed: 1234
                       ,minA: 2
                       ,maxA: 10
@@ -11724,6 +11841,8 @@ Elm.Multiplication.make = function (_elm) {
                                        ,SetMinB: SetMinB
                                        ,SetMaxA: SetMaxA
                                        ,SetMaxB: SetMaxB
+                                       ,SetRows: SetRows
+                                       ,SetCols: SetCols
                                        ,update: update
                                        ,view: view
                                        ,problems: problems

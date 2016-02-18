@@ -1,9 +1,11 @@
 module Multiplication where
 
 import Html exposing (..)
-import Html.Attributes exposing (id, class, property)
-import Random
+import Html.Attributes exposing (id, class, property, value)
+import Html.Events exposing (targetValue, on)
 import Json.Encode as Json
+import Random
+import String
 
 -- types
 type alias Problem = (Int, Int)
@@ -27,7 +29,7 @@ initialModel = { intSeed = 1234
                , rows = 25
                , cols = 2 }
 
-type Action = SetSeed Int | SetMinA Int | SetMinB Int | SetMaxA Int | SetMaxB Int
+type Action = SetSeed Int | SetMinA Int | SetMinB Int | SetMaxA Int | SetMaxB Int | SetRows Int | SetCols Int
 
 update : Action -> Model -> Model
 update action model =
@@ -37,6 +39,8 @@ update action model =
     SetMaxA a -> { model | maxA = a }
     SetMinB b -> { model | minB = b }
     SetMaxB b -> { model | maxB = b }
+    SetRows r -> { model | rows = r }
+    SetCols c -> { model | cols = c }
 
 view : Signal.Address Action -> Model -> Html
 view address model =
@@ -47,7 +51,7 @@ view address model =
          [ table [] <|
                  List.map (\row -> tr [] <|
                            List.map (\p -> td [] [showProblem p]) row) prob'
-         , showParams model ]
+         , showParams address model ]
 
 -- functions
 problems : Model -> Random.Generator (List Problem)
@@ -74,9 +78,18 @@ split n ls =
      then [ls]
      else List.take n ls :: split n rest
 
-showParams : Model -> Html
-showParams model = p []
-  [ text "seed = ", text <| toString model.intSeed
-  , text ", a = ", text <| toString model.minA, text " to ", text <| toString model.maxA
-  , text ", b = ", text <| toString model.minB, text " to ", text <| toString model.maxB
-  , text ", table of ", text <| toString model.cols, text "x", text <| toString model.rows ]
+showParams : Signal.Address Action -> Model -> Html
+showParams address model =
+  let makeMessage f def str =
+        String.toInt >> Result.toMaybe >> Maybe.withDefault def >> f >> Signal.message address
+      inp f def =
+        input [ value (toString def)
+              , on "input" targetValue (makeMessage f def address) ] []
+  in p []
+       [ text "seed = ", inp SetSeed model.intSeed, br [] []
+       , text "a = ", inp SetMinA model.minA
+       , text " to " , inp SetMaxA model.maxA
+       , text ", b = ", inp SetMinB model.minB
+       , text " to ", inp SetMaxB model.maxB
+       , text ", table of ", inp SetCols model.cols
+       , text "x", inp SetRows model.rows ]
