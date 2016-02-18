@@ -1,0 +1,30 @@
+<html>
+    <head>
+        <title>Main</title>
+        <style type="text/css">
+         div#content table {
+             width: 100%;
+         }
+         div#content table tr {
+             line-height: 120%;
+             font-size: 18pt;
+         }
+        </style>
+    </head>
+    <body>
+        <div id="elm">
+            <script type="text/javascript" src="elm.js"></script>
+            <script type="text/javascript">
+             var div = document.getElementById('elm');
+             Elm.embed(Elm.Main, div);
+/*             var elmApp = Elm.embed(Elm.Main, div, {
+                 initialLocation: window.location.search.substring(1)
+             });
+
+             elmApp.ports.location.subscribe(function (newValue) {
+                 history.replaceState({}, "", "?" + newValue);
+             });*/
+            </script>
+        </div>
+    </body>
+</html>
