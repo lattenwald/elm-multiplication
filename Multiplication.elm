@@ -1,46 +1,87 @@
 module Multiplication where
 
 import Html exposing (..)
-import Html.Attributes exposing (id, class, property, value)
+import Html.Attributes exposing (id, class, property, value, type')
 import Html.Events exposing (targetValue, on)
 import Json.Encode as Json
 import Random
 import String
+import Effects exposing (Effects)
+import History
+import Parser exposing ((<*), (*>), and)
+import Parser.Number as Parser
+import Debug
 
 -- types
 type alias Problem = (Int, Int)
 
 type alias Model = {
-    intSeed : Int
-  , minA : Int
-  , maxA : Int
-  , minB : Int
-  , maxB : Int
-  , rows : Int
-  , cols : Int
+    cols    : Int
+  , rows    : Int
+  , minA    : Int
+  , maxA    : Int
+  , minB    : Int
+  , maxB    : Int
+  , intSeed : Int
   }
 
 initialModel : Model
-initialModel = { intSeed = 1234
+initialModel = { cols = 2
+               , rows = 25
                , minA = 2
                , maxA = 10
                , minB = 2
                , maxB = 10
-               , rows = 25
-               , cols = 2 }
+               , intSeed = 1234 }
 
-type Action = SetSeed Int | SetMinA Int | SetMinB Int | SetMaxA Int | SetMaxB Int | SetRows Int | SetCols Int
+type Action = NoOp
+            | SetSeed Int
+            | SetMinA Int
+            | SetMinB Int
+            | SetMaxA Int
+            | SetMaxB Int
+            | SetRows Int
+            | SetCols Int
+            | LoadState Model
 
-update : Action -> Model -> Model
+serializeModel : Model -> String
+serializeModel model =
+     toString model.cols ++ "x" ++ toString model.rows
+  ++ "/" ++ toString model.minA ++ ".." ++ toString model.maxA
+  ++ "/" ++ toString model.minB ++ ".." ++ toString model.maxB
+  ++ "/" ++ toString model.intSeed
+
+deserializeModel : String -> Maybe Model
+deserializeModel str =
+  let modelParser = Parser.optional (Parser.symbol '#') '#' *>
+                    Parser.map Model
+                    Parser.natural <* Parser.symbol 'x' `and`
+                    Parser.natural <* Parser.symbol '/' `and`
+                    Parser.integer <* Parser.token ".." `and`
+                    Parser.integer <* Parser.token "/" `and`
+                    Parser.integer <* Parser.token ".." `and`
+                    Parser.integer <* Parser.token "/" `and`
+                    Parser.integer
+  in str |> Debug.log "model string" >> Parser.parse modelParser >> Result.toMaybe >> Debug.log "model parse result"
+
+modelSignal : Model -> Signal Action
+modelSignal model = Signal.map (deserializeModel >> Maybe.withDefault model >> LoadState) History.hash
+
+saveState : Model -> (Model, Effects Action)
+saveState model = ( model, "#" ++ serializeModel model |> History.setPath >> Effects.task >> Effects.map (\_ -> NoOp))
+
+update : Action -> Model -> (Model, Effects Action)
 update action model =
   case action of
-    SetSeed s -> { model | intSeed = s }
-    SetMinA a -> { model | minA = a }
-    SetMaxA a -> { model | maxA = a }
-    SetMinB b -> { model | minB = b }
-    SetMaxB b -> { model | maxB = b }
-    SetRows r -> { model | rows = r }
-    SetCols c -> { model | cols = c }
+    NoOp        -> (model, Effects.none)
+    SetSeed s   -> saveState { model | intSeed = s }
+    SetMinA a   -> saveState { model | minA = a }
+    SetMaxA a   -> saveState { model | maxA = a }
+    SetMinB b   -> saveState { model | minB = b }
+    SetMaxB b   -> saveState { model | maxB = b }
+    SetRows r   -> saveState { model | rows = r }
+    SetCols c   -> saveState { model | cols = c }
+    LoadState m -> (m, Effects.none)
 
 view : Signal.Address Action -> Model -> Html
 view address model =
@@ -84,6 +125,7 @@ showParams address model =
         String.toInt >> Result.toMaybe >> Maybe.withDefault def >> f >> Signal.message address
       inp f def =
         input [ value (toString def)
+              , type' "number"
               , on "input" targetValue (makeMessage f def address) ] []
   in p []
        [ text "seed = ", inp SetSeed model.intSeed, br [] []
