@@ -9,9 +9,6 @@
              line-height: 120%;
              font-size: 18pt;
          }
-         div#content input {
-             width: 4em;
-         }
         </style>
     </head>
     <body>
@@ -19,14 +16,9 @@
             <script type="text/javascript" src="elm.js"></script>
             <script type="text/javascript">
              var div = document.getElementById('elm');
-             Elm.embed(Elm.Main, div);
-/*             var elmApp = Elm.embed(Elm.Multiplication, div, {
-                 initialLocation: window.location.search.substring(1)
+             Elm.embed(Elm.Main, div, {
+                 initialHash: document.location.hash
              });
-
-             elmApp.ports.location.subscribe(function (newValue) {
-                 history.replaceState({}, "", "?" + newValue);
-             });*/
             </script>
         </div>
     </body>

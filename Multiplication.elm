@@ -1,16 +1,15 @@
 module Multiplication where
 
-import Html exposing (..)
-import Html.Attributes exposing (id, class, property, value, type')
-import Html.Events exposing (targetValue, on)
-import Json.Encode as Json
-import Random
-import String
 import Effects exposing (Effects)
 import History
+import Html exposing (..)
+import Html.Attributes exposing (id, class, property, value, type', size)
+import Html.Events exposing (targetValue, on)
+import Json.Encode as Json
 import Parser exposing ((<*), (*>), and)
 import Parser.Number as Parser
-import Debug
+import Random
+import String
 
 -- types
 type alias Problem = (Int, Int)
@@ -62,13 +61,13 @@ deserializeModel str =
                     Parser.integer <* Parser.token ".." `and`
                     Parser.integer <* Parser.token "/" `and`
                     Parser.integer
-  in str |> Debug.log "model string" >> Parser.parse modelParser >> Result.toMaybe >> Debug.log "model parse result"
+  in str |> Parser.parse modelParser >> Result.toMaybe
 
 modelSignal : Model -> Signal Action
 modelSignal model = Signal.map (deserializeModel >> Maybe.withDefault model >> LoadState) History.hash
 
 saveState : Model -> (Model, Effects Action)
-saveState model = ( model, "#" ++ serializeModel model |> History.setPath >> Effects.task >> Effects.map (\_ -> NoOp))
+saveState model = (model, "#" ++ serializeModel model |> History.setPath >> Effects.task >> Effects.map (\_ -> NoOp))
 
 update : Action -> Model -> (Model, Effects Action)
 update action model =
@@ -125,7 +124,8 @@ showParams address model =
         String.toInt >> Result.toMaybe >> Maybe.withDefault def >> f >> Signal.message address
       inp f def =
         input [ value (toString def)
-              , type' "number"
+              -- , type' "number"
+              , size (String.length << toString <| def)
               , on "input" targetValue (makeMessage f def address) ] []
   in p []
        [ text "seed = ", inp SetSeed model.intSeed, br [] []

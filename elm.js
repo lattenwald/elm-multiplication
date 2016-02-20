@@ -12713,7 +12713,9 @@ Elm.Multiplication.make = function (_elm) {
       var inp = F2(function (f,def) {
          return A2($Html.input,
          _U.list([$Html$Attributes.value($Basics.toString(def))
-                 ,$Html$Attributes.type$("number")
+                 ,$Html$Attributes.size(function (_p3) {
+                    return $String.length($Basics.toString(_p3));
+                 }(def))
                  ,A3($Html$Events.on,
                  "input",
                  $Html$Events.targetValue,
@@ -12740,8 +12742,8 @@ Elm.Multiplication.make = function (_elm) {
    });
    var view = F2(function (address,model) {
       var seed = $Random.initialSeed(model.intSeed);
-      var _p3 = A2($Random.generate,problems(model),seed);
-      var prob = _p3._0;
+      var _p4 = A2($Random.generate,problems(model),seed);
+      var prob = _p4._0;
       var prob$ = A2(split,model.cols,prob);
       return A2($Html.div,
       _U.list([$Html$Attributes.id("content")]),
@@ -12764,35 +12766,35 @@ Elm.Multiplication.make = function (_elm) {
    var saveState = function (model) {
       return {ctor: "_Tuple2"
              ,_0: model
-             ,_1: function (_p4) {
+             ,_1: function (_p5) {
                 return A2($Effects.map,
-                function (_p5) {
+                function (_p6) {
                    return NoOp;
                 },
-                $Effects.task($History.setPath(_p4)));
+                $Effects.task($History.setPath(_p5)));
              }(A2($Basics._op["++"],"#",serializeModel(model)))};
    };
    var update = F2(function (action,model) {
-      var _p6 = action;
-      switch (_p6.ctor)
+      var _p7 = action;
+      switch (_p7.ctor)
       {case "NoOp": return {ctor: "_Tuple2"
                            ,_0: model
                            ,_1: $Effects.none};
          case "SetSeed": return saveState(_U.update(model,
-           {intSeed: _p6._0}));
+           {intSeed: _p7._0}));
          case "SetMinA": return saveState(_U.update(model,
-           {minA: _p6._0}));
+           {minA: _p7._0}));
          case "SetMaxA": return saveState(_U.update(model,
-           {maxA: _p6._0}));
+           {maxA: _p7._0}));
          case "SetMinB": return saveState(_U.update(model,
-           {minB: _p6._0}));
+           {minB: _p7._0}));
          case "SetMaxB": return saveState(_U.update(model,
-           {maxB: _p6._0}));
+           {maxB: _p7._0}));
          case "SetRows": return saveState(_U.update(model,
-           {rows: _p6._0}));
+           {rows: _p7._0}));
          case "SetCols": return saveState(_U.update(model,
-           {cols: _p6._0}));
-         default: return {ctor: "_Tuple2",_0: _p6._0,_1: $Effects.none};}
+           {cols: _p7._0}));
+         default: return {ctor: "_Tuple2",_0: _p7._0,_1: $Effects.none};}
    });
    var initialModel = {cols: 2
                       ,rows: 25
@@ -12838,20 +12840,16 @@ Elm.Multiplication.make = function (_elm) {
       $Parser$Number.integer,
       $Parser.token("/"))),
       $Parser$Number.integer);
-      return function (_p7) {
-         return A2($Debug.log,
-         "model parse result",
-         $Result.toMaybe(A2($Parser.parse,
-         modelParser,
-         A2($Debug.log,"model string",_p7))));
+      return function (_p8) {
+         return $Result.toMaybe(A2($Parser.parse,modelParser,_p8));
       }(str);
    };
    var modelSignal = function (model) {
       return A2($Signal.map,
-      function (_p8) {
+      function (_p9) {
          return LoadState(A2($Maybe.withDefault,
          model,
-         deserializeModel(_p8)));
+         deserializeModel(_p9)));
       },
       $History.hash);
    };
@@ -12896,8 +12894,16 @@ Elm.Main.make = function (_elm) {
    $StartApp = Elm.StartApp.make(_elm),
    $Task = Elm.Task.make(_elm);
    var _op = {};
+   var initialHash = Elm.Native.Port.make(_elm).inbound("initialHash",
+   "String",
+   function (v) {
+      return typeof v === "string" || typeof v === "object" && v instanceof String ? v : _U.badPort("a string",
+      v);
+   });
    var app = $StartApp.start({init: {ctor: "_Tuple2"
-                                    ,_0: $Multiplication.initialModel
+                                    ,_0: A2($Maybe.withDefault,
+                                    $Multiplication.initialModel,
+                                    $Multiplication.deserializeModel(initialHash))
                                     ,_1: $Effects.none}
                              ,update: $Multiplication.update
                              ,view: $Multiplication.view
