@@ -5,7 +5,7 @@ import Effects exposing (Never)
 import Task
 
 app : App Model
-app = start { init   = (Maybe.withDefault initialModel <| deserializeModel initialHash, Effects.none)
+app = start { init   = saveState (Maybe.withDefault initialModel <| deserializeModel initialHash)
             , update = update
             , view   = view
             , inputs = [ modelSignal initialModel ] }

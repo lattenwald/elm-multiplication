@@ -12900,11 +12900,9 @@ Elm.Main.make = function (_elm) {
       return typeof v === "string" || typeof v === "object" && v instanceof String ? v : _U.badPort("a string",
       v);
    });
-   var app = $StartApp.start({init: {ctor: "_Tuple2"
-                                    ,_0: A2($Maybe.withDefault,
-                                    $Multiplication.initialModel,
-                                    $Multiplication.deserializeModel(initialHash))
-                                    ,_1: $Effects.none}
+   var app = $StartApp.start({init: $Multiplication.saveState(A2($Maybe.withDefault,
+                             $Multiplication.initialModel,
+                             $Multiplication.deserializeModel(initialHash)))
                              ,update: $Multiplication.update
                              ,view: $Multiplication.view
                              ,inputs: _U.list([$Multiplication.modelSignal($Multiplication.initialModel)])});
