@@ -12701,6 +12701,11 @@ Elm.Multiplication.make = function (_elm) {
       return {ctor: "SetSeed",_0: a};
    };
    var showParams = F2(function (address,model) {
+      var newSeed = function (s) {
+         return $Basics.fst(A2($Random.generate,
+         A2($Random.$int,0,$Basics.floor(1.0e9)),
+         $Random.initialSeed(s)));
+      };
       var makeMessage = F3(function (f,def,str) {
          return function (_p2) {
             return A2($Signal.message,
@@ -12726,6 +12731,12 @@ Elm.Multiplication.make = function (_elm) {
       _U.list([]),
       _U.list([$Html.text("seed = ")
               ,A2(inp,SetSeed,model.intSeed)
+              ,A2($Html.button,
+              _U.list([$Html$Attributes.$class("no-print")
+                      ,A2($Html$Events.onClick,
+                      address,
+                      SetSeed(newSeed(model.intSeed)))]),
+              _U.list([$Html.text("randomize")]))
               ,A2($Html.br,_U.list([]),_U.list([]))
               ,$Html.text("a = ")
               ,A2(inp,SetMinA,model.minA)
@@ -12796,13 +12807,15 @@ Elm.Multiplication.make = function (_elm) {
            {cols: _p7._0}));
          default: return {ctor: "_Tuple2",_0: _p7._0,_1: $Effects.none};}
    });
-   var initialModel = {cols: 2
-                      ,rows: 25
-                      ,minA: 2
-                      ,maxA: 10
-                      ,minB: 2
-                      ,maxB: 10
-                      ,intSeed: 1234};
+   var initialModel = function (seed) {
+      return {cols: 2
+             ,rows: 25
+             ,minA: 2
+             ,maxA: 10
+             ,minB: 2
+             ,maxB: 10
+             ,intSeed: seed};
+   };
    var Model = F7(function (a,b,c,d,e,f,g) {
       return {cols: a
              ,rows: b
@@ -12894,6 +12907,12 @@ Elm.Main.make = function (_elm) {
    $StartApp = Elm.StartApp.make(_elm),
    $Task = Elm.Task.make(_elm);
    var _op = {};
+   var initialSeed = Elm.Native.Port.make(_elm).inbound("initialSeed",
+   "Int",
+   function (v) {
+      return typeof v === "number" && isFinite(v) && Math.floor(v) === v ? v : _U.badPort("an integer",
+      v);
+   });
    var initialHash = Elm.Native.Port.make(_elm).inbound("initialHash",
    "String",
    function (v) {
@@ -12901,11 +12920,11 @@ Elm.Main.make = function (_elm) {
       v);
    });
    var app = $StartApp.start({init: $Multiplication.saveState(A2($Maybe.withDefault,
-                             $Multiplication.initialModel,
+                             $Multiplication.initialModel(initialSeed),
                              $Multiplication.deserializeModel(initialHash)))
                              ,update: $Multiplication.update
                              ,view: $Multiplication.view
-                             ,inputs: _U.list([$Multiplication.modelSignal($Multiplication.initialModel)])});
+                             ,inputs: _U.list([$Multiplication.modelSignal($Multiplication.initialModel(initialSeed))])});
    var main = app.html;
    var tasks = Elm.Native.Task.make(_elm).performSignal("tasks",
    app.tasks);

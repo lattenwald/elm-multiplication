@@ -4,7 +4,7 @@ import Effects exposing (Effects)
 import History
 import Html exposing (..)
 import Html.Attributes exposing (id, class, property, value, type', size)
-import Html.Events exposing (targetValue, on)
+import Html.Events exposing (targetValue, on, onClick)
 import Json.Encode as Json
 import Parser exposing ((<*), (*>), and)
 import Parser.Number as Parser
@@ -24,14 +24,14 @@ type alias Model = {
   , intSeed : Int
   }
 
-initialModel : Model
-initialModel = { cols = 2
-               , rows = 25
-               , minA = 2
-               , maxA = 10
-               , minB = 2
-               , maxB = 10
-               , intSeed = 1234 }
+initialModel : Int -> Model
+initialModel seed = { cols    = 2
+                    , rows    = 25
+                    , minA    = 2
+                    , maxA    = 10
+                    , minB    = 2
+                    , maxB    = 10
+                    , intSeed = seed }
 
 type Action = NoOp
             | SetSeed Int
@@ -122,13 +122,16 @@ showParams : Signal.Address Action -> Model -> Html
 showParams address model =
   let makeMessage f def str =
         String.toInt >> Result.toMaybe >> Maybe.withDefault def >> f >> Signal.message address
+      newSeed s = fst <| Random.generate (Random.int 0 <| floor 1e9) <| Random.initialSeed s
       inp f def =
         input [ value (toString def)
-              -- , type' "number"
               , size (String.length << toString <| def)
               , on "input" targetValue (makeMessage f def address) ] []
   in p []
-       [ text "seed = ", inp SetSeed model.intSeed, br [] []
+       [ text "seed = ", inp SetSeed model.intSeed
+       , button [ class "no-print"
+                , onClick address (SetSeed <| newSeed model.intSeed)] [text "randomize"]
+       , br [] []
        , text "a = ", inp SetMinA model.minA
        , text " to " , inp SetMaxA model.maxA
        , text ", b = ", inp SetMinB model.minB
