@@ -1,0 +1,36 @@
+<html>
+    <head>
+        <title>Main</title>
+        <style type="text/css">
+         div#content table {
+             width: 100%;
+             border-spacing: 0;
+         }
+         div#content tr {
+             line-height: 120%;
+             font-size: 18pt;
+         }
+         div#content td {
+             padding-left: .5em;
+             border: 1px solid black;
+         }
+         @media print {
+             .no-print, .no-print * {
+                 display: none !important;
+             }
+         }
+        </style>
+    </head>
+    <body>
+        <div id="elm">
+            <script type="text/javascript" src="elm.div.js"></script>
+            <script type="text/javascript">
+             var div = document.getElementById('elm');
+             Elm.embed(Elm.Main, div, {
+                 initialHash: document.location.hash,
+                 initialSeed: Math.floor(Math.random() * 1e9)
+             });
+            </script>
+        </div>
+    </body>
+</html>
